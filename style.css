@@ -1,0 +1,23 @@
+/*use-itty-bitty-template*/
+body {background: #000000;}
+h1, h2, h4, h5 {
+  border-bottom: 1px solid #ccc;
+  color: #00FF00;
+  padding-bottom: 8px
+}
+/*body {background: #000000;}*/
+h3 {
+  border-bottom: 1px solid #ccc;
+  color: #F70D1A;
+  padding-bottom: 8px
+}
+.container {
+  margin: auto;
+  width: 350px;
+  text-align: center;
+}
+.listFlex {display: flex; justify-content: center;}
+
+img {
+  width: 100%;
+}
