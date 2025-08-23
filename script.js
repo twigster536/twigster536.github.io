@@ -269,6 +269,8 @@ function drawTank(){
 /************ CONTROL LOOP ************/
 let _prevRUN = false;
 let _prevALARM = false;
+function clamp(v, lo, hi){ return Math.min(hi, Math.max(lo, v)); }
+
 
 function controlLoop(){
   // 1) E-Stop forces off
@@ -366,14 +368,7 @@ document.querySelectorAll('[data-cmd]').forEach(b=>{
     playSafe(sndClick);
     break;
 
-  case 'ack':
-    // Clear alarm & E-Stop latch
-    ESTOP = false;
-    ALARM = false;
-    pauseSafe(sndAlarm);
-    playSafe(sndClick);
-    updateLamps(); updateButtons();
-    break;
+  
 
     case 'testalarm':
   FORCE_TEST_ALARM = true;   // latch test
@@ -386,11 +381,12 @@ document.querySelectorAll('[data-cmd]').forEach(b=>{
 case 'ack':
   ESTOP = false;
   ALARM = false;
-  FORCE_TEST_ALARM = false;  // clear test latch
+  FORCE_TEST_ALARM = false;   // <- clear the test latch too
   pauseSafe(sndAlarm);
   playSafe(sndClick);
   updateLamps(); updateButtons();
   break;
+
 
     }
     updateLamps();
