@@ -1,229 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <link rel="stylesheet" href="style.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Automation Showcase - HVAC AI + PLC</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 </head>
-
 <body>
-    
-   
-    
-    
-    <canvas id=c></canvas>
-    <div class=point title=point>
 
-        <h1>TWIGSTER</h1>
+<!-- Overlay (as requested text) -->
+<div id="startOverlay" class="overlay">
+  <div class="overlay-card">
+    <img src="assets/logo.svg" class="logo" alt="Automation Logo"/>
+    <h1>Tap to Start</h1>
+    <p>Experience PLC/HMI projects with motion, sound, and demos.</p>
+    <button id="startBtn" class="btn-primary">Start Experience</button>
+    <small>Headphones recommended 🎧</small>
+  </div>
+</div>
+
+<header>
+  <img src="assets/logo.svg" class="brand" alt="logo"/>
+  <nav>
+    <a href="#showcase">Projects</a>
+    <a href="#project" class="cta">Open Project</a>
+  </nav>
+</header>
+
+<main>
+  <!-- After tap, we show this quote area then auto-scroll to Featured Projects -->
+  <section id="quote" class="section quote">
+    <blockquote>
+      <p>"Technology, through automation and artificial intelligence, is definitely one of the most disruptive sources"</p>
+      <cite>— Alain Dehaze</cite>
+    </blockquote>
+  </section>
+
+  <section id="showcase" class="section">
+    <h2>Featured Projects</h2>
+    <div class="cards">
+      <!-- Slot 1: HVAC AI -->
+      <article class="card">
+        <img src="assets/card_hvac.png" alt="HVAC AI card">
+        <div class="card-body">
+          <h3>HVAC AI – Prediction + Control</h3>
+          <p>LSTM-style predictions with comfort band control and energy summary.</p>
+          <button class="btn-tertiary" data-open="hvac">Open project</button>
+        </div>
+      </article>
+      <!-- Slot 2: PLC -->
+      <article class="card">
+        <img src="assets/card_plc.png" alt="PLC Demo card">
+        <div class="card-body">
+          <h3>PLC Demo – Start/Stop/Auto</h3>
+          <p>Classic HMI panel: pumps, tank level, alarms, and ack/reset.</p>
+          <button class="btn-tertiary" data-open="plc">Open project</button>
+        </div>
+      </article>
     </div>
-	 <p>I'm back</p>
+  </section>
+
+  <!-- Project detail area (switches between HVAC and PLC) -->
+  <section id="project" class="section project hidden">
+    <div class="proj-header">
+      <h2 id="projTitle">Project</h2>
+      <div class="proj-actions">
+        <button id="btnBack" class="btn-secondary">← Back to Projects</button>
+      </div>
+    </div>
+
+    <!-- HVAC view -->
+    <div id="viewHVAC" class="proj-view hidden">
+      <p class="muted">Upload your CSV or try the sample. Adjust setpoint and comfort ± to see control state.</p>
+      <div class="hmi-wrap">
+        <div class="hmi-panel">
+          <div class="hmi-row">
+            <label>Setpoint: <input id="sp" type="range" min="18" max="26" value="22" step="0.1"> <span id="spVal">22.0</span> C</label>
+            <label>Comfort +/-: <input id="band" type="range" min="0.2" max="2.0" value="0.8" step="0.1"> <span id="bandVal">0.8</span> C</label>
+            <button class="hmi-btn" id="btnAuto">Auto</button>
+            <button class="hmi-btn" id="btnManual">Manual</button>
+            <button class="hmi-btn danger" id="btnAlarm">estop</button>
+            <button class="hmi-btn" id="btnAck">Ack</button>
+            <button class="hmi-btn" data-cmd="testalarm" title="Trigger alarm test">Test Alarm</button>
+
+          </div>
+          <div class="status-row">
+            <div>HEAT: <span id="stHeat" class="lamp"></span></div>
+            <div>COOL: <span id="stCool" class="lamp"></span></div>
+            <div>AUTO: <span id="stAuto" class="lamp"></span></div>
+            <div>ALARM: <span id="stAlarm" class="lamp"></span></div>
+          </div>
+          <canvas id="chart" width="1000" height="360" aria-label="Prediction vs Actual chart" role="img"></canvas>
+          <p class="muted" id="summary"></p>
+          <div class="uploader">
+            <input id="file" type="file" accept=".csv">
+            <button class="btn-secondary" id="btnSample">Use Sample Data</button>
+          </div>
+          <p class="muted">CSV headers: LocalTime, IndoorTempC, PredTempC, OutdoorTempC, SetpointC, HVACPowerW</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLC view -->
+   <!-- PLC view -->
+<div id="viewPLC" class="proj-view">
+  <p class="muted">
+    Manual: Start runs until Stop / E-Stop / High • Auto: starts at Low, stops at High • E-Stop: immediate stop • Alarms: low-not-running (auto) / high-while-running
+  </p>
+
+  <div class="hmi-wrap">
+    <div class="hmi-panel">
+      <!-- Controls -->
+      <div class="hmi-row" aria-label="HMI Controls">
+        <button class="hmi-btn" data-cmd="manual" title="Switch to Manual Mode">Manual</button>
+        <button class="hmi-btn" data-cmd="auto" title="Switch to Auto Mode">Auto</button>
+
+        <button class="hmi-btn" data-cmd="start" title="Start Pump (Manual only)">Start</button>
+        <button class="hmi-btn" data-cmd="stop" title="Stop Pump (Manual only)">Stop</button>
+
+        <button class="hmi-btn danger" data-cmd="estop" title="Emergency Stop">Emergency Stop</button>
+        <button class="hmi-btn" data-cmd="ack" title="Acknowledge / Reset">ACK / Reset</button>
+        <button class="hmi-btn" data-cmd="testalarm" title="Trigger alarm test">Test Alarm</button>
+      </div>
+
+      <!-- Status lamps -->
+      <div class="status-row" aria-live="polite">
+        <div>RUN: <span id="plcRun" class="lamp"></span></div>
+        <div>AUTO: <span id="plcAuto" class="lamp"></span></div>
+        <div>ALARM: <span id="plcAlarm" class="lamp alarm"></span></div>
+      </div>
+
+      <!-- Process graphic -->
+      <svg id="plant" viewBox="0 0 600 260" role="img" aria-label="Tank with single pump controlled by PLC">
+        <!-- Tank -->
+        <rect x="40" y="40" width="220" height="160" rx="10" fill="#0f172a" stroke="#334155" stroke-width="3"/>
+        <!-- Water level (animated by JS) -->
+        <rect id="level" x="43" y="200" width="214" height="0" fill="#22d3ee" opacity="0.6"/>
+
+        <!-- High / Low markers -->
+        <line x1="40" y1="72"  x2="260" y2="72"  stroke="#22d3ee" stroke-dasharray="4 4" opacity="0.8"/>
+        <text x="265" y="76"  font-size="12" fill="#94a3b8">HIGH</text>
+        <line x1="40" y1="168" x2="260" y2="168" stroke="#22d3ee" stroke-dasharray="4 4" opacity="0.8"/>
+        <text x="265" y="172" font-size="12" fill="#94a3b8">LOW</text>
+
+        <!-- Pipe to pump -->
+        <rect x="260" y="120" width="110" height="16" fill="#1f2937" stroke="#334155"/>
+
+        <!-- Single Pump -->
+        <g id="pump" transform="translate(400,102)">
+          <circle cx="34" cy="28" r="28" fill="#0f172a" stroke="#334155" stroke-width="3"/>
+          <polygon id="impA" points="34,6 48,28 34,50 20,28" fill="#a7f3d0" opacity="0.9"/>
+          <text x="34" y="70" font-size="12" fill="#94a3b8" text-anchor="middle">Pump</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
 
 
-    <script>var gl = c.getContext('experimental-webgl', { preserveDrawingBuffer: true })
-            , w = c.width = window.innerWidth
-            , h = c.height = window.innerHeight
+  </section>
+</main>
 
-            , opts = {
-                particleAmount: 100000,
-                gravity: .001,
-                baseDist: 30,
-                addedDist: 50,
-                baseVelDistMult: .3,
-                addedVelDistMult: .2,
-                particleAlpha: .5,
-                repaintAlpha: .4
-            }
+<!-- UI/general -->
+<audio id="sndClick"   src="assets/click.wav"    preload="auto"></audio>
+<audio id="sndIntro"   src="assets/intro.wav"    preload="auto"></audio>
 
-            , webgl = {};
+<!-- PLC actions -->
+<audio id="sndStart"   src="assets/click.wav"  preload="auto"></audio>
+<audio id="sndStop"    src="assets/click.wav"   preload="auto"></audio>
+<audio id="sndEstop"   src="assets/click.wav"   preload="auto"></audio>
+<audio id="sndAlarm"   src="assets/alarm.wav"  preload="auto" loop></audio>
 
-        webgl.vertexShaderSource = `
-attribute vec2 a_pos;
-uniform vec2 u_res;
-uniform float u_tick;
-uniform int u_mode;
-varying vec4 v_color;
-
-vec3 h2rgb( float h ){
-	return vec3( clamp( abs( mod( h * 6. + vec3( 0, 4, 2 ), 6. ) - 3. ) -1., 0., 1. ) );
-}
-void main(){
-	
-	v_color = u_mode == 0 ? vec4( h2rgb( atan( a_pos.y, a_pos.x ) / 6.2831853071795864769252867665590057683943 * 2. + u_tick / 300. ), ${opts.particleAlpha}) : vec4( 0, 0, 0, ${opts.repaintAlpha});
-	gl_Position = u_mode == 0 ? vec4( vec2(1.,-1.) * ( a_pos / u_res ), 0, 1 ) : vec4( a_pos * 2. - 1., 0, 1 );
-}
-`
-        webgl.fragmentShaderSource = `
-precision mediump float;
-varying vec4 v_color;
-
-void main(){
-	gl_FragColor = v_color;
-}
-`;
-
-        webgl.vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(webgl.vertexShader, webgl.vertexShaderSource);
-        gl.compileShader(webgl.vertexShader);
-
-        webgl.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(webgl.fragmentShader, webgl.fragmentShaderSource);
-        gl.compileShader(webgl.fragmentShader);
-
-        webgl.shaderProgram = gl.createProgram();
-        gl.attachShader(webgl.shaderProgram, webgl.vertexShader);
-        gl.attachShader(webgl.shaderProgram, webgl.fragmentShader);
-        gl.linkProgram(webgl.shaderProgram);
-
-        gl.useProgram(webgl.shaderProgram);
-
-        webgl.attribLocs = {
-            pos: gl.getAttribLocation(webgl.shaderProgram, 'a_pos')
-        };
-        webgl.buffers = {
-            pos: gl.createBuffer()
-        };
-        webgl.uniformLocs = {
-            res: gl.getUniformLocation(webgl.shaderProgram, 'u_res'),
-            tick: gl.getUniformLocation(webgl.shaderProgram, 'u_tick'),
-            mode: gl.getUniformLocation(webgl.shaderProgram, 'u_mode')
-        };
-
-        gl.enableVertexAttribArray(webgl.attribLocs.pos);
-        gl.bindBuffer(gl.ARRAY_BUFFER, webgl.buffers.pos);
-        gl.vertexAttribPointer(webgl.attribLocs.pos, 2, gl.FLOAT, false, 0, 0);
-
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.enable(gl.BLEND);
-
-        function resize() {
-            w = c.width = window.innerWidth;
-            h = c.height = window.innerHeight;
-
-            gl.viewport(0, 0, w, h);
-            gl.uniform2f(webgl.uniformLocs.res, w, h);
-        }
-        resize();
-
-        webgl.posData = [];
-        webgl.draw = function (glType) {
-
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(webgl.posData), gl.STATIC_DRAW);
-            gl.drawArrays(glType, 0, webgl.posData.length / 2);
-        }
-        webgl.clear = function () {
-
-            webgl.posData = [
-                0, 0,
-                0, 1,
-                1, 0,
-                1, 0,
-                0, 1,
-                1, 1
-            ];
-
-            gl.uniform1i(webgl.uniformLocs.mode, 1);
-            webgl.draw(gl.TRIANGLES);
-            gl.uniform1i(webgl.uniformLocs.mode, 0);
-
-            webgl.posData.length = 0;
-        }
-
-        var tick = 0
-            , particles = [];
-
-        function Particle(x, y) {
-
-            var radius, angle;
-
-            if (x === undefined) {
-                radius = opts.baseDist + opts.addedDist * (1 - Math.sqrt(Math.random()));
-                angle = Math.random() * 6.28318530717958647692528676655;
-
-                x = radius * Math.cos(angle);
-                y = radius * Math.sin(angle);
-
-            } else {
-
-                x *= 2;
-                y *= 2;
-
-                radius = Math.sqrt(x * x + y * y);
-                angle = Math.atan(y / x);
-                if (x < 0)
-                    angle += Math.PI;
-            }
-
-            this.x = x;
-            this.y = y;
-
-            var vAngle = angle + Math.PI / 2
-                , vSize = (opts.baseVelDistMult + opts.addedVelDistMult * Math.random()) * radius;
-
-            this.vx = vSize * Math.cos(vAngle);
-            this.vy = vSize * Math.sin(vAngle);
-        }
-        Particle.prototype.step = function () {
-
-            var px = this.x
-                , py = this.y;
-
-            this.vx -= opts.gravity * this.x;
-            this.vy -= opts.gravity * this.y;
-
-            this.x += this.vx;
-            this.y += this.vy;
-
-            webgl.posData.push(
-                px, py,
-                this.x, this.y
-            );
-        }
-
-        function anim() {
-
-            window.requestAnimationFrame(anim);
-
-            ++tick;
-
-            gl.uniform1f(webgl.uniformLocs.tick, tick);
-
-            webgl.clear();
-
-            if (particles.length < opts.particleAmount && Math.random() < .5)
-                for (var i = 0; i < 10; ++i)
-                    particles.push(new Particle);
-
-            particles.map(function (p) { p.step(); });
-
-            webgl.draw(gl.LINES);
-        }
-        anim();
-
-        window.addEventListener('resize', resize);
-
-        var mdown = false;
-        c.addEventListener('mousedown', function (e) {
-            mdown = true;
-
-            particles.push(new Particle(e.clientX - w / 2, e.clientY - h / 2));
-        });
-        c.addEventListener('mousemove', function (e) {
-            if (mdown)
-                particles.push(new Particle(e.clientX - w / 2, e.clientY - h / 2));
-        });
-        c.addEventListener('mouseup', function () {
-            mdown = false;
-        })
-
-        document.querySelector('.point').addEventListener('click', function () {
-            particles.length = 0;
-        })</script>
+<!-- Continuous pump hum (loop while RUN) -->
+<audio id="sndPump"    src="assets/pumb.wav"    preload="auto" loop></audio>
 
 
 
 
+
+
+<script src="script.js"></script>
 </body>
-
 </html>
