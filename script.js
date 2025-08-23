@@ -406,3 +406,17 @@ updateButtons();
 controlLoop();
 
 
+function adjustMainPad(){
+  const header = document.querySelector('header');
+  const main = document.querySelector('main');
+  if (!header || !main) return;
+  const h = header.offsetHeight;     // actual height (wraps on mobile)
+  main.style.paddingTop = (h + 8) + 'px'; // a little breathing room
+}
+window.addEventListener('load', adjustMainPad);
+window.addEventListener('resize', adjustMainPad);
+
+// If your overlay hides after click, recalc once more then:
+document.getElementById('startBtn')?.addEventListener('click', ()=>{
+  setTimeout(adjustMainPad, 4000); // after your 4s overlay fade-out
+});
