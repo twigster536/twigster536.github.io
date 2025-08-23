@@ -56,4 +56,19 @@ main{padding-top:64px}.section{padding:64px 16px;max-width:1100px;margin:0 auto}
 .proj-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .proj-actions{display:flex;gap:8px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-@media (max-width:720px){.hmi-row{gap:8px}}
+
+@media (max-width: 560px){
+  header{
+    position: sticky;      /* was fixed */
+    top: 0;
+    height: auto;          /* allow wrapping */
+    padding: 8px 12px;     /* slightly tighter */
+  }
+  nav a{
+    margin: 0 6px;
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+  main{ padding-top: 16px; } /* no need to reserve fixed space */
+}
+
