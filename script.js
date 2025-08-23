@@ -211,9 +211,9 @@ const btnAck    = document.querySelector('[data-cmd="ack"]');
 
 
 /************ HELPERS ************/
-function lamp(el, on){ el && el.classList.toggle('on', !!on); }
-function playSafe(a){ try{ a?.play?.(); }catch(e){} }
-function clamp(v, lo, hi){ return Math.min(hi, Math.max(lo, v)); }
+function setLamp(el, on){ el && el.classList.toggle('on', !!on); }
+function lamp(el, on){ setLamp(el, on); } // if you also call lamp(...)
+
 
 function updateButtons(){
   const inAuto = MODE === 'auto';
@@ -372,6 +372,7 @@ document.querySelectorAll('[data-cmd]').forEach(b=>{
     ALARM = false;
     pauseSafe(sndAlarm);
     playSafe(sndClick);
+    updateLamps(); updateButtons();
     break;
 
     case 'testalarm':
@@ -388,6 +389,7 @@ case 'ack':
   FORCE_TEST_ALARM = false;  // clear test latch
   pauseSafe(sndAlarm);
   playSafe(sndClick);
+  updateLamps(); updateButtons();
   break;
 
     }
