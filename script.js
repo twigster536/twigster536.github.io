@@ -179,8 +179,16 @@ loadSample().catch(()=>{});
 /************ CONFIG ************/
 const LOW_LEVEL  = 30;   // %
 const HIGH_LEVEL = 80;   // %
-const FILL_RATE  = 0.35; // %/frame when pump ON
-const DRAIN_RATE = 0.20; // %/frame when pump OFF
+// rates in % per SECOND (phone-safe)
+const FILL_RATE_PPS  = 20;
+const DRAIN_RATE_PPS = 12;
+
+// clock for time-based simulation
+let _lastT = performance.now();
+
+document.addEventListener('visibilitychange', ()=>{
+  _lastT = performance.now();
+});
 
 /************ STATE ************/
 let MODE  = 'manual';    // 'manual' | 'auto'
@@ -243,28 +251,35 @@ function updateLamps(){
 }
 
 /** Spin impeller when running */
-function spin(el, speed){
+// AFTER (deg per SECOND)
+function spin(el, degPerSec){
   if(!el) return;
-  let d = 0;
-  function step(){
+  let angle = 0;
+  let prev = performance.now();
+  function step(t){
+    const dt = Math.min((t - prev) / 1000, 0.1);
+    prev = t;
     if (RUN && !ESTOP){
-      d = (d + speed) % 360;
-      // center at (34,28) to match your SVG
-      el.setAttribute('transform', `rotate(${d} 34 28)`);
+      angle = (angle + degPerSec * dt) % 360;
+      el.setAttribute('transform', `rotate(${angle} 34 28)`);
     }
     requestAnimationFrame(step);
   }
-  step();
+  requestAnimationFrame(step);
 }
+// ~4 deg/frame @60fps ≈ 240 deg/sec
+spin(impA, 240);
+
 
 /** Draw tank rect: map 0..100% to SVG height */
 function drawTank(){
-  const H = 160;       // height of tank rect in px (y=40..200)
-  const yTop = 40;     // top y of tank
-  const h = (H * lvl)/100;
+  const H = 160;        // height of tank rect in px (y=40..200)
+  const yTop = 40;      // top y of tank
+  const h = (H * lvl) / 100;
   level?.setAttribute('y', yTop + (H - h));
   level?.setAttribute('height', h);
 }
+
 
 /************ CONTROL LOOP ************/
 let _prevRUN = false;
@@ -273,6 +288,12 @@ function clamp(v, lo, hi){ return Math.min(hi, Math.max(lo, v)); }
 
 
 function controlLoop(){
+
+    // time step (seconds)
+  const now = performance.now();
+  let dt = (now - _lastT) / 1000;
+  _lastT = now;
+  if (dt > 0.1) dt = 0.1;   // cap big gaps (iOS scroll/tab)
   // 1) E-Stop forces off
   if (ESTOP) RUN = false;
 
@@ -286,8 +307,10 @@ function controlLoop(){
   }
 
   // 3) Process tank level
-  if (RUN && !ESTOP) lvl = clamp(lvl + FILL_RATE, 0, 100);
-  else               lvl = clamp(lvl - DRAIN_RATE, 0, 100);
+// AFTER (time-based)
+if (RUN && !ESTOP) lvl = clamp(lvl + FILL_RATE_PPS  * dt, 0, 100);
+else               lvl = clamp(lvl - DRAIN_RATE_PPS * dt, 0, 100);
+
 
   // 4) Alarms
   const alarmLowNoRun     = (MODE === 'auto') && (lvl <= LOW_LEVEL) && !RUN && !ESTOP;
@@ -395,7 +418,7 @@ case 'ack':
 });
 
 /************ INIT ************/
-spin(impA, 4);
+spin(impA, 240);
 drawTank();
 updateLamps();
 updateButtons();
