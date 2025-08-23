@@ -26,24 +26,18 @@ const sndPump   = getAudio('sndPump',  0.45); // loop=true in HTML
 // Unlock audio on first user gesture (Chrome/SAF policies)
 
 let audioArmed = false;
-const allAudioIds = ['sndClick','sndIntro','sndStart','sndStop','sndEstop','sndAlarm','sndPump'];
-const allAudios = allAudioIds.map(id => document.getElementById(id)).filter(Boolean);
-
-function armAudioNow(){
+function armAudio(){
   if (audioArmed) return;
   audioArmed = true;
-  allAudios.forEach(a=>{
-    try {
-      a.muted = true;
-      a.play().then(()=>{ a.pause(); a.muted = false; }).catch(()=>{});
-    } catch(e){}
+  // try a quiet play/pause to unlock
+  [sndClick, sndIntro, sndStart, sndStop, sndEstop, sndAlarm, sndPump].forEach(a=>{
+    try { a.muted = true; a.play().then(()=>{ a.pause(); a.muted = false; }).catch(()=>{}); } catch(e){}
   });
+  window.removeEventListener('pointerdown', armAudio);
+  window.removeEventListener('keydown', armAudio);
 }
-// Unlock on first gesture (iOS-friendly)
-window.addEventListener('touchstart', armAudioNow,  { once: true });
-window.addEventListener('pointerdown', armAudioNow, { once: true });
-// optional: desktop keyboards
-window.addEventListener('keydown', armAudioNow,     { once: true });
+window.addEventListener('pointerdown', armAudio, { once:false });
+window.addEventListener('keydown', armAudio, { once:false });
 
 
 const startOverlay = document.getElementById('startOverlay');
