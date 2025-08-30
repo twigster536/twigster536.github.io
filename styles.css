@@ -38,6 +38,7 @@ main{padding-top:64px}.section{padding:64px 16px;max-width:1100px;margin:0 auto}
   border: 2px solid #00ff88;       /* full border */
   padding: 12px 16px;
   color: #c7e6ff;
+  text-align: center;
   background: #081226;             /* same background as before */
   border-radius: 8px;
   box-shadow: 0 0 12px #00ff88;    /* glowing effect */
