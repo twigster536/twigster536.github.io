@@ -1,3 +1,4 @@
+@import url('https://db.onlinewebfonts.com/c/4e6ac8c3d18698e2f7ba865c03f7808f?family=asimovian');
 :root{--bg:#0b1020;--panel:#0f172a;--muted:#94a3b8;--text:#e5f3ff;--line:#334155;--accent:#22d3ee;--danger:#ef4444}
 *{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;scroll-behavior:smooth}
 header{position:fixed;inset:0 auto auto 0;height:60px;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(11,16,32,.65);backdrop-filter:blur(8px);border-bottom:1px solid #111827;z-index:30}
@@ -61,6 +62,21 @@ main{padding-top:64px}.section{padding:64px 16px;max-width:1100px;margin:0 auto}
   header{ height: 60px; }           /* keep fixed height */
   nav{ display:flex; overflow-x:auto; gap: 8px; }
   nav::-webkit-scrollbar{ display:none; }
+}
+
+.top-banner {
+  background: #0f172a;     /* dark navy */
+  color: #00ff22;          /* light text */
+  font-family: 'asimovian', sans-serif;
+  text-align: center;
+  padding: 12px 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  /*position: sticky;*/
+  top: 0;
+  z-index: 1000;
 }
 
 
